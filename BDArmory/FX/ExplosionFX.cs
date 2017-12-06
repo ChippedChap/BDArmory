@@ -6,6 +6,7 @@ using BDArmory.UI;
 using UnityEngine;
 using System;
 using BDArmory.Core;
+using BDArmory.Core.Enum;
 using BDArmory.Core.Utils;
 
 namespace BDArmory.FX
@@ -307,7 +308,7 @@ namespace BDArmory.FX
                 {
                     BlastInfo blastInfo =
                         BlastPhysicsUtils.CalculatePartBlastEffects(part, realDistance,
-                            part.vessel.totalMass * 1000f, Power, Range, BDArmorySettings.DMG_MULTIPLIER);
+                            part.vessel.totalMass * 1000f, Power, Range);
 
                     if (BDArmorySettings.DRAW_DEBUG_LABELS)
                     {
@@ -318,7 +319,6 @@ namespace BDArmory.FX
                             " TotalPressure: {" + blastInfo.TotalPressure + "}," +
                             " Damage: {" + blastInfo.Damage + "}," +
                             " EffectiveArea: {" + blastInfo.EffectivePartArea + "}," +
-                            " PercentageOfPartAffected: {" +Math.Round(blastInfo.PercentageOfPartAffected) + "}," +
                             " Positive Phase duration: {" + blastInfo.PositivePhaseDuration + "}," +
                             " Vessel mass: {" + Math.Round(part.vessel.totalMass * 1000f) + "}," +
                             " TimeIndex: {" + TimeIndex + "}," +
@@ -343,9 +343,6 @@ namespace BDArmory.FX
                         eventToExecute.HitPoint + part.rb.velocity * TimeIndex);
 
                     part.AddExplosiveDamage(blastInfo.Damage,
-                                            BDArmorySettings.DMG_MULTIPLIER,
-                                            BDArmorySettings.EXP_DMG_MOD_MISSILE,
-                                            BDArmorySettings.EXP_DMG_MOD_BALLISTIC,
                                             Caliber, IsMissile);
                 }
                 else
@@ -370,7 +367,7 @@ namespace BDArmory.FX
             }
         }        
 
-        public static void CreateExplosion(Vector3 position, float tntMassEquivalent, string explModelPath, string soundPath, bool isMissile = true, float caliber = 0, Part explosivePart = null, Vector3 direction = default(Vector3))
+        public static void CreateExplosion(Vector3 position, float tntMassEquivalent, string explModelPath, string soundPath, bool isMissile = true,float caliber = 0, Part explosivePart = null, Vector3 direction = default(Vector3))
         {
             var go = GameDatabase.Instance.GetModel(explModelPath);
             var soundClip = GameDatabase.Instance.GetAudioClip(soundPath);

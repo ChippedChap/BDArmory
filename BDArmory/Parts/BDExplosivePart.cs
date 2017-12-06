@@ -1,4 +1,5 @@
 using System;
+using BDArmory.Core.Enum;
 using BDArmory.Core.Extension;
 using BDArmory.Core.Utils;
 using BDArmory.FX;
@@ -94,7 +95,7 @@ namespace BDArmory.Parts
 	    {
 	        part.Destroy();
             ExplosionFx.CreateExplosion(part.transform.position, tntMass,
-	            "BDArmory/Models/explosion/explosionLarge", "BDArmory/Sounds/explode1",true,0, part);
+	            "BDArmory/Models/explosion/explosionLarge", "BDArmory/Sounds/explode1",true, 0, part);
 
 	      
         }

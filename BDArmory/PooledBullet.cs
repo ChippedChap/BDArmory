@@ -12,6 +12,7 @@ using BDArmory.UI;
 using UnityEngine;
 using System.Collections.Generic;
 using BDArmory.Core;
+using BDArmory.Core.Enum;
 
 namespace BDArmory
 {
@@ -219,15 +220,7 @@ namespace BDArmory
             }
 
             //calculate flight time for drag purposes
-            flightTimeElapsed += TimeWarp.deltaTime;
-
-            if (bulletDrop && FlightGlobals.RefFrameIsRotating)
-            {
-                // Gravity???
-                var gravity_ = FlightGlobals.getGeeForceAtPosition(transform.position);
-                //var gravity_ = Physics.gravity;
-                currentVelocity += gravity_ * TimeWarp.deltaTime;
-            }
+            flightTimeElapsed += Time.deltaTime;
 
             //Drag types currently only affect Impactvelocity 
             //Numerical Integration is currently Broken
@@ -245,10 +238,10 @@ namespace BDArmory
 
             if (tracerLength == 0)
             {
+
                 bulletTrail.SetPosition(0,
                     transform.position +
-                    ((currentVelocity * tracerDeltaFactor * TimeWarp.deltaTime / TimeWarp.CurrentRate) -
-                    (FlightGlobals.ActiveVessel.Velocity() * TimeWarp.deltaTime)) * 0.25);
+                    (currentVelocity * tracerDeltaFactor * 0.25f * Time.deltaTime));
             }
             else
             {
@@ -280,7 +273,7 @@ namespace BDArmory
                 hasRichocheted = false;
                 penTicker = 0;
 
-                float dist = currentVelocity.magnitude * TimeWarp.deltaTime;
+                float dist = currentVelocity.magnitude * Time.deltaTime;
                 Ray ray = new Ray(currPosition, currentVelocity);
                 var hits = Physics.RaycastAll(ray, dist, 557057);
                 if (hits.Length > 0)
@@ -434,7 +427,16 @@ namespace BDArmory
             ///////////////////////////////////////////////////////////////////////                     
 
             prevPosition = currPosition;
-            //move bullet            
+            //move bullet
+
+            if (bulletDrop && FlightGlobals.RefFrameIsRotating)
+            {
+                // Gravity???
+                var gravity_ = FlightGlobals.getGeeForceAtPosition(transform.position);
+                //var gravity_ = Physics.gravity;
+                currentVelocity += gravity_ * TimeWarp.deltaTime;
+            }
+
             transform.position += currentVelocity * Time.deltaTime;
         }
 
