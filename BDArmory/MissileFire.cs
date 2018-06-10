@@ -3860,6 +3860,11 @@ namespace BDArmory
                 ml.targetGPSCoords = VectorUtils.WorldPositionToGeoCoords(antiRadiationTarget,
                         vessel.mainBody);
             }
+			else if (ml.TargetingMode == MissileBase.TargetingModes.RadarBeam && vesselRadarData)
+			{
+				ml.vrd = vesselRadarData;
+				vesselRadarData.LastMissile = ml;
+			}
         }
 
         public void TargetAcquire()

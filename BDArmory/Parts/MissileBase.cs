@@ -126,13 +126,13 @@ namespace BDArmory.Parts
 
         public enum DetonationDistanceStates {NotSafe, Cruising, CheckingProximity, Detonate}
 
-        public enum TargetingModes { None, Radar, Heat, Laser, Gps, AntiRad }
+        public enum TargetingModes { None, Radar, Heat, Laser, Gps, AntiRad, RadarBeam }
 
         public MissileStates MissileState { get; set; } = MissileStates.Idle;
 
         public DetonationDistanceStates DetonationDistanceState { get; set; } = DetonationDistanceStates.NotSafe;
 
-        public enum GuidanceModes { None, AAMLead, AAMPure, AGM, AGMBallistic, Cruise, STS, Bomb, RCS, BeamRiding, SLW}
+        public enum GuidanceModes { None, AAMLead, AAMPure, AGM, AGMBallistic, Cruise, STS, Bomb, RCS, BeamRiding, SLW, RadarRiding}
 
         public GuidanceModes GuidanceMode;
 
@@ -759,6 +759,46 @@ namespace BDArmory.Parts
                 TargetPosition = VectorUtils.GetWorldSurfacePostion(targetGPSCoords, vessel.mainBody);
             }
         }
+
+		protected void UpdateRadarBeamTarget()
+		{
+			bool previouslyLocked = TargetAcquired;
+			TargetAcquired = false;
+			if (!vrd) return;
+
+			Debug.Log("[BDArmory] UpdateRadarBeamTarget running");
+
+			if (vrd.locked)
+			{
+				// MODE 1 - BEAM TO TARGET GUIDANCE
+				// Not sure how to use the coordinates in the TSD, so I'm using this for now for lockedTargetPosition.
+				ModuleRadar lockingRadar = vrd.GetRadarMakingActiveLock();
+				Vector3 lockedTargetPosition = vrd.GetTSDBeingActivelyLocked().vessel.transform.position + vrd.GetTSDBeingActivelyLocked().posDistortion;
+				Vector3 lockingRadarPosition = lockingRadar.transform.position;
+				DrawDebugLine(lockedTargetPosition, lockingRadarPosition);
+				// Terrain check
+				if (!RadarUtils.TerrainCheck(lockedTargetPosition, lockingRadarPosition))
+				{
+					// Calculate angle and distances
+					float missileToBeamAngle = Vector3.Angle(transform.position - lockingRadarPosition, lockedTargetPosition - lockingRadarPosition);
+					float missileToRadarRange = Vector3.Distance(transform.position, lockingRadarPosition);
+
+					// Narrow and wide beam checks
+					// TODO: Make narrow beam angle, wide beam angle and wide beam range configurable.
+					if ((missileToBeamAngle < lockingRadar.boresightFOV) || (missileToBeamAngle < 85 && missileToRadarRange < 100))
+					{
+						Debug.Log("[BDArmory] Missile has acquired.");
+						TargetAcquired = true;
+					}
+				}
+			}
+			else if (false)
+			{
+				// TODO: MODE 2 - BORESIGHT GUIDANCE BEAM
+			}
+
+			if (previouslyLocked && !TargetAcquired) Debug.Log("[BDArmory] Radar beam riding missile lost guidance beam");
+		}
 
         public void DrawDebugLine(Vector3 start, Vector3 end)
         {

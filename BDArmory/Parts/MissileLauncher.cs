@@ -936,6 +936,10 @@ namespace BDArmory.Parts
 				{
 					UpdateAntiRadiationTarget();
 				}
+				else if(TargetingMode == TargetingModes.RadarBeam)
+				{
+					UpdateRadarBeamTarget();
+				}
 
                 UpdateTerminalGuidance();
             }
@@ -1041,6 +1045,10 @@ namespace BDArmory.Parts
                     {
                         SLWGuidance();
                     }
+					else if (GuidanceMode == GuidanceModes.RadarRiding)
+					{
+						RadarRidingGuidance();
+					}
                 }
 				else
 				{
@@ -1680,6 +1688,24 @@ namespace BDArmory.Parts
             CheckMiss();
         }
 
+		void RadarRidingGuidance()
+		{
+			if (TargetAcquired)
+			{
+				Vector3 lockedTargetPosition = vrd.GetTSDBeingActivelyLocked().vessel.transform.position + vrd.GetTSDBeingActivelyLocked().posDistortion;
+				Vector3 lockingRadarPosition = vrd.GetRadarMakingActiveLock().transform.position;
+
+				Ray guidanceBeam = new Ray(lockingRadarPosition, lockedTargetPosition - lockingRadarPosition);
+				Vector3 aeroTarget = MissileGuidance.GetBeamRideTarget(guidanceBeam, transform.position, vessel.Velocity(), beamCorrectionFactor, beamCorrectionDamping, (TimeIndex > 0.25f ? previousBeam : guidanceBeam));
+				previousBeam = guidanceBeam;
+				DoAero(aeroTarget);
+			}
+			else
+			{
+				// TODO: Destroy on some timeout
+			}
+		}
+
 		void DoAero(Vector3 targetPosition)
 		{
 			aeroTorque = MissileGuidance.DoAeroForces(this, targetPosition, liftArea, controlAuthority * steerMult, aeroTorque, finalMaxTorque, maxAoA);
@@ -1950,6 +1976,9 @@ namespace BDArmory.Parts
                 case "slw":
                     GuidanceMode = GuidanceModes.SLW;
                     break;
+				case "radarriding":
+					GuidanceMode = GuidanceModes.RadarRiding;
+					break;
                 default:
                     GuidanceMode = GuidanceModes.None;
                     break;
@@ -1973,6 +2002,9 @@ namespace BDArmory.Parts
 				break;
 			case "antirad":
 				TargetingMode = TargetingModes.AntiRad;
+				break;
+			case "radarbeam":
+				TargetingMode = TargetingModes.RadarBeam;
 				break;
 			default:
 				TargetingMode = TargetingModes.None;

@@ -742,6 +742,25 @@ namespace BDArmory.Radar
             }
         }
 
+		// Functions for radar beam riding
+		public TargetSignatureData GetTSDBeingActivelyLocked()
+		{
+			if (!locked) return TargetSignatureData.noTarget;
+			return GetLockedTargets()[activeLockedTargetIndex];
+		}
+
+		public ModuleRadar GetRadarMakingActiveLock()
+		{
+			foreach (ModuleRadar candidate in availableRadars)
+			{
+				if (candidate.lockedTarget.vessel == GetLockedTargets()[activeLockedTargetIndex].vessel)
+				{
+					return candidate;
+				}
+			}
+			return null;
+		}
+
         private void OnGUI()
         {
             if (!drawGUI) return;
