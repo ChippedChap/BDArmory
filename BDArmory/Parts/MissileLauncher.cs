@@ -1692,11 +1692,12 @@ namespace BDArmory.Parts
 		{
 			if (TargetAcquired)
 			{
-				Vector3 lockedTargetPosition = vrd.GetTSDBeingActivelyLocked().vessel.transform.position + vrd.GetTSDBeingActivelyLocked().posDistortion;
-				Vector3 lockingRadarPosition = vrd.GetRadarMakingActiveLock().transform.position;
+				Vector3 lockingRadarPosition = beamingRadar.transform.position;
+				Vector3 beamDirection = vrd.GetTSDBeingActivelyLocked().vessel.transform.position + vrd.GetTSDBeingActivelyLocked().posDistortion - lockingRadarPosition;
 
-				Ray guidanceBeam = new Ray(lockingRadarPosition, lockedTargetPosition - lockingRadarPosition);
+				Ray guidanceBeam = new Ray(lockingRadarPosition, beamDirection);
 				Vector3 aeroTarget = MissileGuidance.GetBeamRideTarget(guidanceBeam, transform.position, vessel.Velocity(), beamCorrectionFactor, beamCorrectionDamping, (TimeIndex > 0.25f ? previousBeam : guidanceBeam));
+				DrawDebugLine(transform.position, aeroTarget);
 				previousBeam = guidanceBeam;
 				DoAero(aeroTarget);
 			}

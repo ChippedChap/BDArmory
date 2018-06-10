@@ -751,11 +751,11 @@ namespace BDArmory.Radar
 
 		public ModuleRadar GetRadarMakingActiveLock()
 		{
-			foreach (ModuleRadar candidate in availableRadars)
+			foreach (ModuleRadar radar in availableRadars)
 			{
-				if (candidate.lockedTarget.vessel == GetLockedTargets()[activeLockedTargetIndex].vessel)
+				if (radar.lockedTarget.vessel == GetLockedTargets()[activeLockedTargetIndex].vessel)
 				{
-					return candidate;
+					return radar;
 				}
 			}
 			return null;
