@@ -997,11 +997,17 @@ namespace BDArmory.Radar
                 Rect missileDataRect = new Rect(5, scanRect.height - 65, scanRect.width - 5, 60);
                 string missileDataString = LastMissile.GetShortName();
                 missileDataString += "\nT-" + LastMissile.TimeToImpact.ToString("0");
-
-                if (LastMissile.ActiveRadar && Mathf.Round(Time.time * 3) % 2 == 0)
-                {
-                    missileDataString += "\nACTIVE";
-                }
+				if (Mathf.Round(Time.time * 3) % 2 == 0)
+				{
+					if (LastMissile.ActiveRadar)
+					{
+						missileDataString += "\nACTIVE";
+					}
+					else if (LastMissile.GuidanceMode == MissileBase.GuidanceModes.RadarRiding)
+					{
+						missileDataString += "\nIN BEAM";
+					}
+				}
                 GUI.Label(missileDataRect, missileDataString, distanceStyle);
             }
 
