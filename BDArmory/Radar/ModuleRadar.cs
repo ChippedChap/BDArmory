@@ -229,7 +229,33 @@ namespace BDArmory.Radar
         private float radialScanDirection = 1;
         private float lockScanDirection = 1;
 
-        public bool boresightScan;
+		//scan mode tracking
+		public enum ScanningModes {Scan = 0, Boresight = 1, FixedBeam = 2};
+		private int currentScanningIndex = 0;
+
+		public int CurrentScanningIndex
+		{
+			get
+			{
+				return currentScanningIndex;
+			}
+			set
+			{
+				currentScanningIndex = value % 3;
+			}
+		}
+
+		public ScanningModes CurrentScanningMode
+		{
+			get
+			{
+				return (ScanningModes) currentScanningIndex;
+			}
+			set
+			{
+				currentScanningIndex = (int) value;
+			}
+		}
 
         //locking
         public float lockScanAngle;
@@ -539,10 +565,14 @@ namespace BDArmory.Radar
                             Scan();
                         }
                     }
-                    else if (boresightScan)
+                    else if (CurrentScanningMode == ScanningModes.Boresight)
                     {
                         BoresightScan();
                     }
+					else if (CurrentScanningMode == ScanningModes.FixedBeam)
+					{
+						FixedBeam();
+					}
                     else if (canScan)
                     {
                         Scan();
@@ -742,7 +772,7 @@ namespace BDArmory.Radar
         {
             if (locked)
             {
-                boresightScan = false;
+				CurrentScanningMode = ScanningModes.Scan;
                 return;
             }
 
@@ -753,10 +783,21 @@ namespace BDArmory.Radar
             {
                 if (!attemptedLocks[i].exists || !(attemptedLocks[i].age < 0.1f)) continue;
                 TryLockTarget(attemptedLocks[i].predictedPosition);
-                boresightScan = false;
+				CurrentScanningMode = ScanningModes.Scan;
                 return;
             }
         }
+
+		void FixedBeam()
+		{
+			if (locked)
+			{
+				CurrentScanningMode = ScanningModes.Scan;
+				return;
+			}
+
+			currentAngle = Mathf.Lerp(currentAngle, 0, 0.08f);
+		}
 
 
         void UpdateLock(int index)
@@ -1023,11 +1064,16 @@ namespace BDArmory.Radar
         {
             if (drawGUI)
             {
-                if (boresightScan)
+                if (CurrentScanningMode == ScanningModes.Boresight)
                 {
                     BDGUIUtils.DrawTextureOnWorldPos(transform.position + (3500*transform.up),
                         BDArmorySetup.Instance.dottedLargeGreenCircle, new Vector2(156, 156), 0);
                 }
+				if (CurrentScanningMode == ScanningModes.FixedBeam)
+				{
+					BDGUIUtils.DrawTextureOnWorldPos(transform.position + (3500 * transform.up),
+						BDArmorySetup.Instance.openGreenSquare, new Vector2(20, 20), 0);
+				}
             }
         }
 

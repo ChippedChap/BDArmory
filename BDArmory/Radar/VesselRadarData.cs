@@ -108,8 +108,6 @@ namespace BDArmory.Radar
 
         public MissileBase LastMissile;
 
-        //bool boresightScan = false;
-
         //TargetSignatureData[] contacts = new TargetSignatureData[30];
         private List<RadarDisplayData> displayedTargets;
         public bool locked;
@@ -1137,10 +1135,23 @@ namespace BDArmory.Radar
             {
                 if (!locked)
                 {
-                    string boresightToggle = availableRadars[0].boresightScan ? "Scan" : "Boresight";
+					string boresightToggle = "";
+					if (availableRadars[0].CurrentScanningMode == ModuleRadar.ScanningModes.Scan)
+					{
+						boresightToggle = "Boresight";
+					}
+					else if (availableRadars[0].CurrentScanningMode == ModuleRadar.ScanningModes.Boresight)
+					{
+						boresightToggle = "Fixed Beam";
+					}
+					else if (availableRadars[0].CurrentScanningMode == ModuleRadar.ScanningModes.FixedBeam)
+					{
+						boresightToggle = "Scan";
+					}
+
                     if (GUI.Button(lockModeCycleRect, boresightToggle, GUI.skin.button))
                     {
-                        availableRadars[0].boresightScan = !availableRadars[0].boresightScan;
+						availableRadars[0].CurrentScanningIndex += 1;
                     }
                 }
             }
@@ -2095,7 +2106,7 @@ namespace BDArmory.Radar
             {
                 if (!locked && radarCount > 0 && !omniDisplay)
                 {
-                    availableRadars[0].boresightScan = !availableRadars[0].boresightScan;
+					availableRadars[0].CurrentScanningIndex += 1;
                 }
             }
 
