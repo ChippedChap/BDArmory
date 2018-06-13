@@ -1701,8 +1701,11 @@ namespace BDArmory.Parts
 					guidanceBeam = new Ray(beamingRadar.transform.position, (beamingRadar.lockedTarget.vessel.transform.position + distortion) - beamingRadar.transform.position);
 				}
 
-				DrawDebugLine(beamingRadar.transform.position, beamingRadar.transform.position + beamingRadar.transform.up);
-				Vector3 aeroTarget = MissileGuidance.GetBeamRideTarget(guidanceBeam, transform.position, vessel.Velocity(), beamCorrectionFactor, beamCorrectionDamping, (TimeIndex > 0.25f ? previousBeam : guidanceBeam));
+				float timeToImpact;
+				Vector3 aeroTarget = MissileGuidance.GetBeamRideTarget(guidanceBeam, transform.position, vessel.Velocity(), beamCorrectionFactor, beamCorrectionDamping, (TimeIndex > 0.25f ? previousBeam : guidanceBeam),
+					out timeToImpact, this, beamingRadar.lockedTarget.vessel);
+				TimeToImpact = timeToImpact;
+
 				DrawDebugLine(transform.position, aeroTarget);
 				previousBeam = guidanceBeam;
 				DoAero(aeroTarget);
