@@ -761,9 +761,6 @@ namespace BDArmory.Parts
         }
 
 		protected ModuleRadar beamingRadar;
-		// PLACEHOLDERS!!!! PLEASE MOVE THIS TO MODULERADAR BEFORE PUBLISHING THE BRANCH
-		float shortRangeBeamAngle = 85;
-		float shortRangeBeamRange = 100;
 
 		protected void UpdateRadarBeamTarget()
 		{
@@ -773,25 +770,21 @@ namespace BDArmory.Parts
 
 			if (vrd.locked)
 			{
-				// MODE 1 - BEAM TO TARGET GUIDANCE
-				// Not sure how to use the coordinates in the TSD, so I'm using this for now for lockedTargetPosition.
 				beamingRadar = vrd.GetRadarMakingActiveLock();
-				Vector3 lockedTargetPosition = vrd.GetTSDBeingActivelyLocked().vessel.transform.position + vrd.GetTSDBeingActivelyLocked().posDistortion;
-				Vector3 lockingRadarPosition = beamingRadar.transform.position;
 
-				// Terrain check
-				if (!RadarUtils.TerrainCheck(transform.position, lockingRadarPosition))
+				TargetAcquired = beamingRadar &&
+					beamingRadar.MissileIsInGuidanceBeam(this, beamingRadar.lockedTarget.vessel.transform.position - beamingRadar.transform.position);
+			}
+			else if (vrd.HasBoresightingRadar())
+			{
+				List<ModuleRadar> boresightScanRadars = vrd.GetBoresightingRadars();
+
+				foreach (ModuleRadar radarInBoresight in boresightScanRadars)
 				{
-					// Calculate angle and distances
-					float missileToBeamAngle = Vector3.Angle(transform.position - lockingRadarPosition, lockedTargetPosition - lockingRadarPosition);
-					float missileToRadarRange = Vector3.Distance(transform.position, lockingRadarPosition);
+					beamingRadar = radarInBoresight;
+					TargetAcquired = radarInBoresight && radarInBoresight.MissileIsInGuidanceBeam(this, radarInBoresight.transform.up);
 
-					// Narrow and wide beam checks
-					// TODO: Make narrow beam angle, wide beam angle and wide beam range configurable.
-					if ((missileToBeamAngle < beamingRadar.boresightFOV) || (missileToRadarRange < shortRangeBeamRange && missileToBeamAngle < shortRangeBeamAngle))
-					{
-						TargetAcquired = true;
-					}
+					if (TargetAcquired) break;
 				}
 			}
 

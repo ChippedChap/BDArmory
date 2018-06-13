@@ -137,10 +137,10 @@ namespace BDArmory
             }
 		}
 
-		public Vector3 posDistortion
-		{
-			get
-			{
+        public Vector3 predictedPositionWithChaffFactor
+        {
+            get
+            {
 				// get chaff factor of vessel and calculate decoy distortion caused by chaff echos
 				float decoyFactor = 0f;
 				Vector3 posDistortion = Vector3.zero;
@@ -157,18 +157,10 @@ namespace BDArmory
 						return (vessel.GetSrfVelocity() * -1f * Mathf.Clamp(decoyFactor * decoyFactor, 0f, 0.5f)) + (UnityEngine.Random.insideUnitSphere * UnityEngine.Random.Range(targetInfo.radarModifiedSignature, targetInfo.radarModifiedSignature * targetInfo.radarModifiedSignature) * decoyFactor);
 					}
 				}
-				return Vector3.zero;
+				posDistortion =  Vector3.zero;
+
+				return position + (velocity * age) + posDistortion;
 			}
-		}
-
-        public Vector3 predictedPositionWithChaffFactor
-        {
-            get
-            {
-
-                return position + (velocity * age) + posDistortion;
-             
-            }
         }
 
         public float altitude

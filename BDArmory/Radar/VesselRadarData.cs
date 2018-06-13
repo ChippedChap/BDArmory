@@ -742,13 +742,7 @@ namespace BDArmory.Radar
             }
         }
 
-		// Functions for radar beam riding
-		public TargetSignatureData GetTSDBeingActivelyLocked()
-		{
-			if (!locked) return TargetSignatureData.noTarget;
-			return GetLockedTargets()[activeLockedTargetIndex];
-		}
-
+		// For radar beam riding functionality
 		public ModuleRadar GetRadarMakingActiveLock()
 		{
 			foreach (ModuleRadar radar in availableRadars)
@@ -759,6 +753,25 @@ namespace BDArmory.Radar
 				}
 			}
 			return null;
+		}
+
+		public bool HasBoresightingRadar()
+		{
+			foreach (ModuleRadar radar in availableRadars)
+			{
+				if (radar.boresightScan) return true;
+			}
+			return false;
+		}
+
+		public List<ModuleRadar> GetBoresightingRadars()
+		{
+			List<ModuleRadar> radars = new List<ModuleRadar>();
+			foreach (ModuleRadar radar in availableRadars)
+			{
+				if (radar.boresightScan) radars.Add(radar);
+			}
+			return radars;
 		}
 
         private void OnGUI()
