@@ -128,21 +128,7 @@ namespace BDArmory
             return target;
         }
 
-		public static Vector3 GetBeamRideTarget(Ray beam, Vector3 currentPosition, Vector3 currentVelocity,
-			float correctionFactor, float correctionDamping, Ray previousBeam, out float timeToImpact, MissileBase missile, Vessel target)
-		{
-			timeToImpact = 0.0f;
-			if (target)
-			{
-				bool canHit = CalculateAccurateTimeToImpact(Vector3.Distance(missile.transform.position, target.transform.position), Vector3.zero,
-					missile.vessel, missile.vessel.acceleration_immediate, Vector3.zero, out timeToImpact);
-				if (!canHit) timeToImpact = 0.0f;
-			}
-
-			return GetBeamRideTarget(beam, currentPosition, currentVelocity, correctionFactor, correctionDamping, previousBeam);
-		}
-
-		public static Vector3 GetAirToAirTarget(Vector3 targetPosition, Vector3 targetVelocity,
+        public static Vector3 GetAirToAirTarget(Vector3 targetPosition, Vector3 targetVelocity,
             Vector3 targetAcceleration, Vessel missileVessel, out float timeToImpact, float minSpeed = 200)
         {
             float leadTime = 0;
