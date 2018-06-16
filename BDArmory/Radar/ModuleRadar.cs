@@ -752,13 +752,13 @@ namespace BDArmory.Radar
 
             for (int i = 0; i < attemptedLocks.Length; i++)
             {
-				// Stop radar locking onto the RBR missile it is trying to guide
-				if (vesselRadarData.LastMissile && 
-					vesselRadarData.LastMissile.TargetingMode == MissileBase.TargetingModes.RadarBeam && 
-					vesselRadarData.LastMissile.vessel == attemptedLocks[i].vessel) return;
-
                 if (!attemptedLocks[i].exists || !(attemptedLocks[i].age < 0.1f)) continue;
-                TryLockTarget(attemptedLocks[i].predictedPosition);
+				// Stop radar locking onto the RBR missile it is trying to guide
+				if (vesselRadarData.LastMissile &&
+					vesselRadarData.LastMissile.TargetingMode == MissileBase.TargetingModes.RadarBeam &&
+					vesselRadarData.LastMissile.vessel == attemptedLocks[i].vessel) continue;
+
+				TryLockTarget(attemptedLocks[i].predictedPosition);
                 boresightScan = false;
                 return;
             }
@@ -1119,11 +1119,20 @@ namespace BDArmory.Radar
 			float missileToRadarRange = Vector3.Distance(ml.transform.position, transform.position);
 			float missileToBeamAngle = Vector3.Angle(ml.transform.position - transform.position, trackingBeamDir);
 
-			return (
+			bool beamCheckResult = (
 				!RadarUtils.TerrainCheck(transform.position, ml.transform.position) &&
 				(missileToBeamAngle < guidanceBeamAngle) &&
 				(missileToBeamAngle < wideBeamAngle || missileToRadarRange < wideBeamAngleRange)
 				);
+
+			ml.debugString.Append($"Angle: {missileToBeamAngle}");
+			ml.debugString.Append(Environment.NewLine);
+			ml.debugString.Append($"Range: {missileToRadarRange}");
+			ml.debugString.Append(Environment.NewLine);
+			ml.debugString.Append($"In Beam: {(beamCheckResult ? "Yes" : "No")}");
+			ml.debugString.Append(Environment.NewLine);
+
+			return beamCheckResult;
 		}
 
 		// RMB info in editor
