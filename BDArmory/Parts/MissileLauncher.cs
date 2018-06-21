@@ -1697,13 +1697,13 @@ namespace BDArmory.Parts
 
 				if (beamingRadar.locked)
 				{
-					Vector3 distortion = beamingRadar.lockedTarget.predictedPositionWithChaffFactor - beamingRadar.lockedTarget.position;
+					Vector3 distortion = beamingRadar.lockedTarget.predictedPositionWithChaffFactor - beamingRadar.lockedTarget.predictedPosition;
 					guidanceBeam = new Ray(beamingRadar.transform.position, (beamingRadar.lockedTarget.vessel.transform.position + distortion) - beamingRadar.transform.position);
 				}
 
-				DrawDebugLine(beamingRadar.transform.position, beamingRadar.transform.position + beamingRadar.transform.up);
-				Vector3 aeroTarget = MissileGuidance.GetBeamRideTarget(guidanceBeam, transform.position, vessel.Velocity(), beamCorrectionFactor, beamCorrectionDamping, (TimeIndex > 0.25f ? previousBeam : guidanceBeam));
-				DrawDebugLine(transform.position, aeroTarget);
+				Ray beamToUse = TimeIndex > 0.25f ? previousBeam : guidanceBeam;
+				Vector3 aeroTarget = MissileGuidance.GetBeamRideTarget(guidanceBeam, transform.position, vessel.Velocity(), beamCorrectionFactor, beamCorrectionDamping, beamToUse);
+				DrawDebugLine(beamingRadar.transform.position, beamToUse.origin + beamToUse.direction * 9999);
 				previousBeam = guidanceBeam;
 				DoAero(aeroTarget);
 			}

@@ -1106,13 +1106,11 @@ namespace BDArmory.Radar
 
 		// For radar beam riding functionality
 		[KSPField]
-		public float trackingBeamAngle = 0.25f;
+		public float narrowCapOffTrackingAngle = 5;
 		[KSPField]
-		public float guidanceBeamAngle = 10;
+		public float wideCapOffTrackingAngle = 22.5f;
 		[KSPField]
-		public float wideBeamAngle = 45;
-		[KSPField]
-		public float wideBeamAngleRange = 100;
+		public float wideCapRange = 500;
 
 		public bool MissileIsInGuidanceBeam (MissileBase ml, Vector3 trackingBeamDir)
 		{
@@ -1121,8 +1119,8 @@ namespace BDArmory.Radar
 
 			bool beamCheckResult = (
 				!RadarUtils.TerrainCheck(transform.position, ml.transform.position) &&
-				(missileToBeamAngle < guidanceBeamAngle) &&
-				(missileToBeamAngle < wideBeamAngle || missileToRadarRange < wideBeamAngleRange)
+				((missileToBeamAngle < narrowCapOffTrackingAngle) ||
+				(missileToBeamAngle < wideCapOffTrackingAngle || missileToRadarRange < wideCapRange))
 				);
 
 			ml.debugString.Append($"Angle: {missileToBeamAngle}");
