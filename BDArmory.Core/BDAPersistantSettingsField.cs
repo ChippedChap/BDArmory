@@ -57,6 +57,7 @@ namespace BDArmory.Core
             }
             field.Dispose();
         }
+
         public static object ParseValue(Type type, string value)
         {
             if (type == typeof(string))

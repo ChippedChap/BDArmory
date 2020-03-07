@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BDArmory.Armor
+namespace BDArmory.Bullets
 {
     public class BulletInfo
     {
-              
         public string name { get; private set; }
         public float caliber { get; private set; }
         public float bulletMass { get; private set; }
@@ -22,9 +21,9 @@ namespace BDArmory.Armor
         public static BulletInfos bullets;
 
         public BulletInfo(string name, float caliber, float bulletVelocity, float bulletMass,
-                          bool explosive,float tntMass, float blastPower, float blastHeat, float blastRadius,
+                          bool explosive, float tntMass, float blastPower, float blastHeat, float blastRadius,
                           float apBulletDmg, string bulletDragTypeName)
-                     
+
         {
             this.name = name;
             this.caliber = caliber;
@@ -37,7 +36,6 @@ namespace BDArmory.Armor
             this.blastRadius = blastRadius;
             this.apBulletMod = apBulletDmg;
             this.bulletDragTypeName = bulletDragTypeName;
-         
         }
 
         public static void Load()

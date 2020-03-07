@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BDArmory.Core.Utils
+﻿namespace BDArmory.Core.Utils
 {
-    class LayerMask
+    internal class LayerMask
     {
         public static int CreateLayerMask(bool aExclude, params int[] aLayers)
         {
@@ -27,6 +22,5 @@ namespace BDArmory.Core.Utils
             }
             return result;
         }
-
     }
 }

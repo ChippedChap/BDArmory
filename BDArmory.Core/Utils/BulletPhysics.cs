@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace BDArmory.Core.Utils
 {
     public class BulletPhysics : MonoBehaviour
     {
-
-        public static Vector3 CalculateDrag(Vector3 velocity,float bulletMass,float caliber)
+        public static Vector3 CalculateDrag(Vector3 velocity, float bulletMass, float caliber)
         {
             //F_drag = k * v^2 = m * a
-            //k = 0.5 * C_d * rho * A 
+            //k = 0.5 * C_d * rho * A
 
             //float m = 0.2f; // kg
             //float C_d = 0.295f;
@@ -37,6 +35,5 @@ namespace BDArmory.Core.Utils
 
             return dragVec;
         }
-
     }
 }
