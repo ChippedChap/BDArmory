@@ -296,6 +296,9 @@ namespace BDArmory.Modules
             }
 
             var node = new ConfigNode("PART");
+            // When part.vessel is null ProtoPartSnapshot's constructor throws a NullReferenceException.
+            // Making a 'dummy' vessel object and setting it as the vessel appears to fix this issue.
+            part.vessel = new Vessel();
             var snapshot = new ProtoPartSnapshot(part, null);
 
             snapshot.attachNodes = new List<AttachNodeSnapshot>();
