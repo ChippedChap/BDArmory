@@ -11,6 +11,12 @@ namespace BDArmory.Modules
     public class ModuleMissileRearm : PartModule
     {
         private Transform MissileTransform = null;
+        
+        private float reloadTimeStart;
+        private bool reloading = false;
+
+        [KSPField]
+        public float reloadTime = 5;
 
         [KSPField(guiName = "#LOC_BDArmory_OrdinanceAvailable", guiActive = true, isPersistant = true)]//Ordinance Available
         public int ammoCount = 20;
@@ -25,13 +31,17 @@ namespace BDArmory.Modules
         }
 
         [KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = true)]//Resupply
+        public void StartResupply()
+        {
+            if(!reloading && part.children.Count == 0)
+            {
+                reloading = true;
+                reloadTimeStart = Time.time;
+            }
+        }
+
         public void Resupply()
         {
-            if (this.part.children.Count != 0)
-            {
-                Debug.Log("Not Empty" + this.part.children.Count);
-                return;
-            }
             if (ammoCount >= 1)
             {
                 List<AvailablePart> availablePart = PartLoader.LoadedPartsList;
@@ -97,8 +107,13 @@ namespace BDArmory.Modules
             Reassign();
         }
 
-        public override void OnFixedUpdate()
+        public override void OnUpdate()
         {
+            if(reloading && Time.time - reloadTimeStart >= reloadTime)
+            {
+                Resupply();
+                reloading = false;
+            }
         }
 
         [KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = false)]//Resupply
