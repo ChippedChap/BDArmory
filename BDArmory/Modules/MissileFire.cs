@@ -2083,7 +2083,7 @@ namespace BDArmory.Modules
 
                 //dont add reloads
                 if ((weapon.Current.GetWeaponClass() == WeaponClasses.Bomb || weapon.Current.GetWeaponClass() == WeaponClasses.Missile || weapon.Current.GetWeaponClass() == WeaponClasses.SLW) &&
-                    weapon.Current.GetPart().FindModuleImplementing<MissileLauncher>().isAmmunition)
+                    weapon.Current.GetPart().FindModuleImplementing<ModuleRearmAmmo>().ammoEnabled)
                     continue;
 
                 if (!alreadyAdded)

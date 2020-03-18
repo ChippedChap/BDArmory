@@ -126,6 +126,7 @@
     <Compile Include="Guidances\BallisticGuidance.cs" />
     <Compile Include="Guidances\IGuidance.cs" />
     <Compile Include="Misc\BDTeam.cs" />
+    <Compile Include="Modules\ModuleRearmAmmo.cs" />
     <Compile Include="UI\BDStagingAreaGauge.cs" />
     <Compile Include="UI\BDAEditorCategory.cs" />
     <Compile Include="UI\BDTeamSelector.cs" />

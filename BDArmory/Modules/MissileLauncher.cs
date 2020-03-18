@@ -82,10 +82,6 @@ namespace BDArmory.Modules
         [KSPField]
         public float maxAoA = 35;
 
-        [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = true, guiName = "#LOC_BDArmory_Ammo"), //Is Spare Reload:
-            UI_Toggle(disabledText = "#LOC_BDArmory_false", enabledText = "#LOC_BDArmory_true", scene = UI_Scene.Editor)]
-        public bool isAmmunition = false;
-
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "#LOC_BDArmory_Direction"),//Direction: 
             UI_Toggle(disabledText = "#LOC_BDArmory_Direction_disabledText", enabledText = "#LOC_BDArmory_Direction_enabledText")]//Lateral--Forward
         public bool decoupleForward = false;
@@ -334,8 +330,6 @@ namespace BDArmory.Modules
 
         public override void OnStart(StartState state)
         {
-            UpdateActionVisibility(null, null);
-            SetupFloatRangeCallback();
             //base.OnStart(state);
             ParseWeaponClass();
 
@@ -656,24 +650,6 @@ namespace BDArmory.Modules
             BDArmorySetup.OnVolumeChange += UpdateVolume;
         }
 
-        // Functions for hiding actions when missile is a reload.
-        void SetupFloatRangeCallback()
-        {
-            UI_Toggle ammoToggle = (UI_Toggle)Fields["isAmmunition"].uiControlEditor;
-            ammoToggle.onFieldChanged = UpdateActionVisibility;
-
-            // Whip out when you want ammunition status to be changed in flight.
-            //UI_Toggle ammoToggleFlight = (UI_Toggle)Fields["isAmmunition"].uiControlFlight;
-            //ammoToggleFlight.onFieldChanged = UpdateActionVisibility;
-        }
-
-        // Danger! Parameters are not expected to be used and are supposed to be null.
-        void UpdateActionVisibility(BaseField b, object o)
-        {
-            Actions["AGFire"].active = !isAmmunition;
-            Events["GuiFire"].active = !isAmmunition;
-        }
-
         void UpdateVolume()
         {
             if (audioSource)
@@ -720,11 +696,6 @@ namespace BDArmory.Modules
 
         public override void FireMissile()
         {
-            if (isAmmunition)
-            {
-                Debug.LogWarning("Something attempted to fire a spare reload missile. This may cause unintended behavior.");
-                return;
-            }
             if (HasFired) return;
 
             SetupExplosive(this.part);
