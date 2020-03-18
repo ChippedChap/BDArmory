@@ -551,7 +551,11 @@ namespace BDArmory.Modules
 
             // Notify game about a new part that has just "coupled".
             GameEvents.onPartCouple.Fire(new GameEvents.FromToAction<Part, Part>(newPart, tgtPart));
-            tgtPart.vessel.ClearStaging();
+            
+            // I don't know why this was here, or what issue this was to supposed to prevent
+            // But i'll just comment this out until I discover why. (I need this off to make BDStagingAreaGauge to work)
+            //tgtPart.vessel.ClearStaging();
+
             GameEvents.onVesselPartCountChanged.Fire(tgtPart.vessel);
             newPart.vessel.checkLanded();
             newPart.vessel.currentStage = StageManager.RecalculateVesselStaging(tgtPart.vessel) + 1;
