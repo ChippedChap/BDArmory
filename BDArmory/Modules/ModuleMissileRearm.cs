@@ -5,12 +5,15 @@ using System.Linq;
 using System.Reflection;
 using KSP.UI.Screens;
 using UnityEngine;
+using BDArmory.UI;
 
 namespace BDArmory.Modules
 {
     public class ModuleMissileRearm : PartModule
     {
         private Transform MissileTransform = null;
+
+        private BDStagingAreaGauge gauge;
         
         private float reloadTimeStart;
         private bool reloading = false;
@@ -105,15 +108,30 @@ namespace BDArmory.Modules
             this.part.force_activate();
             MissileTransform = base.part.FindModelTransform("MissileTransform");
             Reassign();
+
+            // Setup gauges
+            gauge = (BDStagingAreaGauge)part.AddModule("BDStagingAreaGauge");
         }
 
         public override void OnUpdate()
         {
-            if(reloading && Time.time - reloadTimeStart >= reloadTime)
+            if (reloading && Time.time - reloadTimeStart >= reloadTime)
             {
                 Resupply();
                 reloading = false;
             }
+
+            // Update gauges
+            if(vessel.isActiveVessel)
+            {
+                gauge.UpdateReloadMeter((Time.time - reloadTimeStart) / reloadTime);
+            }
+        }
+
+        // I need this somehow ¯\_(ツ)_/¯
+        public override bool IsStageable()
+        {
+            return true;
         }
 
         [KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = false)]//Resupply
