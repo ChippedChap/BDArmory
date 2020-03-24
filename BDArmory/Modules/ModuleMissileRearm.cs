@@ -6,6 +6,7 @@ using System.Reflection;
 using KSP.UI.Screens;
 using UnityEngine;
 using BDArmory.UI;
+using BDArmory.Core;
 
 namespace BDArmory.Modules
 {
@@ -17,6 +18,8 @@ namespace BDArmory.Modules
         
         private float reloadTimeStart;
         private bool reloading = false;
+
+        private List<ModuleRearmAmmo> ammo = new List<ModuleRearmAmmo>();
 
         [KSPField]
         public float reloadTime = 5;
@@ -45,7 +48,7 @@ namespace BDArmory.Modules
 
         public void Resupply()
         {
-            if (ammoCount >= 1)
+            if (ConsumeAmmo())
             {
                 List<AvailablePart> availablePart = PartLoader.LoadedPartsList;
                 foreach (AvailablePart AP in availablePart)
@@ -61,7 +64,6 @@ namespace BDArmory.Modules
                                 Debug.Log("Node" + AP.partPrefab.srfAttachNode.originalPosition);
                                 CreatePart(partNode, MissileTransform.transform.position - MissileTransform.TransformDirection(AP.partPrefab.srfAttachNode.originalPosition),
                                     this.part.transform.rotation, this.part, this.part, "srfAttach");
-                                ammoCount -= 1;
                                 StartCoroutine(ResetTurret());
                                 return;
                             }
@@ -102,29 +104,54 @@ namespace BDArmory.Modules
             }
         }
 
-        public override void OnStart(PartModule.StartState state)
-        {
-            this.enabled = true;
-            this.part.force_activate();
-            MissileTransform = base.part.FindModelTransform("MissileTransform");
-            Reassign();
+        public void Start()
+        { 
+            if(HighLogic.LoadedSceneIsFlight)
+            {
+                GameEvents.onVesselWasModified.Add(VesselChanged);
 
-            // Setup gauges
-            gauge = (BDStagingAreaGauge)part.AddModule("BDStagingAreaGauge");
+                this.enabled = true;
+                this.part.force_activate();
+                MissileTransform = base.part.FindModelTransform("MissileTransform");
+                Reassign();
+                VesselChanged(vessel);
+
+                gauge = (BDStagingAreaGauge)part.AddModule("BDStagingAreaGauge");
+            }
         }
 
-        public override void OnUpdate()
+        public void OnDestroy()
         {
-            if (reloading && Time.time - reloadTimeStart >= reloadTime)
-            {
-                Resupply();
-                reloading = false;
-            }
+            if(HighLogic.LoadedSceneIsFlight) GameEvents.onVesselWasModified.Remove(VesselChanged);
+        }
 
-            // Update gauges
-            if(vessel.isActiveVessel)
+        public void Update()
+        {
+            if (HighLogic.LoadedSceneIsFlight)
             {
-                gauge.UpdateReloadMeter((Time.time - reloadTimeStart) / reloadTime);
+                if (reloading && Time.time - reloadTimeStart >= reloadTime)
+                {
+                    Resupply();
+                    reloading = false;
+                }
+
+                if (vessel.isActiveVessel)
+                {
+                    gauge.UpdateReloadMeter((Time.time - reloadTimeStart) / reloadTime);
+                }
+            }
+        }
+
+        public void OnGUI()
+        {
+            if(HighLogic.LoadedSceneIsFlight && BDArmorySettings.DRAW_DEBUG_LINES && vessel.isActiveVessel)
+            {
+                if (ammo.Count > 0)
+                {
+                    BDGUIUtils.DrawLineBetweenWorldPositions(part.transform.position, ammo[0].transform.position, 10, Color.blue);
+                    for (int i = 1; i < ammo.Count; i++)
+                        BDGUIUtils.DrawLineBetweenWorldPositions(part.transform.position, ammo[i].transform.position, 1, Color.blue);
+                }
             }
         }
 
@@ -132,6 +159,45 @@ namespace BDArmory.Modules
         public override bool IsStageable()
         {
             return true;
+        }
+
+        public bool ConsumeAmmo()
+        {
+            if (BDArmorySettings.INFINITE_AMMO) return true;
+
+            if(!BDArmorySettings.SIMPLE_REARM)
+                if (ammo.Count > 0) {
+                    ammo[0].Consume();
+                    return true;
+                }
+            else
+                if (ammoCount > 0)
+                {
+                    ammoCount--;
+                    return true;
+                }
+            return false;
+        }
+
+        public void RegisterAmmo(ModuleRearmAmmo a)
+        {
+            // Placeholder - sort by distance
+            ammo.Add(a);
+        }
+
+        public void ClearAmmo()
+        {
+            ammo.Clear();
+        }
+
+        private void VesselChanged(Vessel v)
+        {
+            if(v == vessel)
+            {
+                ClearAmmo();
+                foreach (ModuleRearmAmmo ammo in vessel.FindPartModulesImplementing<ModuleRearmAmmo>())
+                    RegisterAmmo(ammo);
+            }
         }
 
         [KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = false)]//Resupply

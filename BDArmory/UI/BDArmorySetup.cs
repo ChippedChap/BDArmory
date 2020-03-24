@@ -1395,6 +1395,8 @@ namespace BDArmory.UI
             BDArmorySettings.BULLET_DECALS = GUI.Toggle(SLeftRect(line), BDArmorySettings.BULLET_DECALS, Localizer.Format("#LOC_BDArmory_Settings_BulletHoleDecals"));//"Bullet Hole Decals"
             BDArmorySettings.PERFORMANCE_LOGGING = GUI.Toggle(SRightRect(line), BDArmorySettings.PERFORMANCE_LOGGING, Localizer.Format("#LOC_BDArmory_Settings_PerformanceLogging"));//"Performance Logging"
             line++;
+            BDArmorySettings.SIMPLE_REARM = GUI.Toggle(SLeftRect(line), BDArmorySettings.SIMPLE_REARM, Localizer.Format("#LOC_BDArmory_Settings_SimpleRearm"));//"Simple Missile Rearm"
+            line++;
             if (HighLogic.LoadedSceneIsEditor)
             {
                 if (BDArmorySettings.SHOW_CATEGORIES != (BDArmorySettings.SHOW_CATEGORIES = GUI.Toggle(SLeftRect(line), BDArmorySettings.SHOW_CATEGORIES, Localizer.Format("#LOC_BDArmory_Settings_ShowEditorSubcategories"))))//"Show Editor Subcategories"

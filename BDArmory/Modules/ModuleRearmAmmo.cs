@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace BDArmory.Modules
 {
 	// Class for single use rearm. Extend this if you want to make multiple use rearm boxes.
-	class ModuleRearmAmmo : PartModule
+	public class ModuleRearmAmmo : PartModule
 	{
 		[KSPField]
 		public bool userToggleableInFlight = true;
