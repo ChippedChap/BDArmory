@@ -25,28 +25,35 @@ namespace BDArmory.Modules
         public float reloadTime = 5;
 
         [KSPField(guiName = "#LOC_BDArmory_OrdinanceAvailable", guiActive = true, isPersistant = true)]//Ordinance Available
+        public int ammoCountDummy = 0;
+
+        [KSPField(isPersistant = true)] // Actual field storing ammoCount when using simple rearm.
         public int ammoCount = 20;
 
         [KSPField(guiName = "#LOC_BDArmory_MissileAssign", guiActive = true, isPersistant = true)]//Missile Assign
         private string MissileName = "bahaAim120";
 
-        [KSPAction("Resupply", KSPActionGroup.None)]
-        private void ActionResupply(KSPActionParam param)
-        {
-            Resupply();
-        }
-
         [KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = true)]//Resupply
         public void StartResupply()
         {
-            if(!reloading && part.children.Count == 0)
+            if(!reloading && part.children.Count == 0 && ammoCountDummy != 0)
             {
                 reloading = true;
                 reloadTimeStart = Time.time;
             }
         }
 
-        public void Resupply()
+        #region Action Groups
+
+        [KSPAction("Resupply", KSPActionGroup.None)]
+        public void ActionResupply(KSPActionParam param)
+        {
+            StartResupply();
+        }
+
+		#endregion
+
+		public void Resupply()
         {
             if (ConsumeAmmo())
             {
@@ -129,6 +136,8 @@ namespace BDArmory.Modules
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
+                ammoCountDummy = BDArmorySettings.SIMPLE_REARM ? ammoCount : ammo.Count;
+
                 if (reloading && Time.time - reloadTimeStart >= reloadTime)
                 {
                     Resupply();
@@ -144,7 +153,7 @@ namespace BDArmory.Modules
 
         public void OnGUI()
         {
-            if(HighLogic.LoadedSceneIsFlight && BDArmorySettings.DRAW_DEBUG_LINES && vessel.isActiveVessel)
+            if(HighLogic.LoadedSceneIsFlight && BDArmorySettings.DRAW_DEBUG_LINES && vessel && vessel.isActiveVessel)
             {
                 if (ammo.Count > 0)
                 {
@@ -166,22 +175,39 @@ namespace BDArmory.Modules
             if (BDArmorySettings.INFINITE_AMMO) return true;
 
             if(!BDArmorySettings.SIMPLE_REARM)
-                if (ammo.Count > 0) {
+            {
+                if (ammo.Count > 0)
+                {
                     ammo[0].Consume();
                     return true;
                 }
+            }
             else
+            {
                 if (ammoCount > 0)
                 {
                     ammoCount--;
                     return true;
                 }
+            }
             return false;
         }
 
         public void RegisterAmmo(ModuleRearmAmmo a)
         {
-            // Placeholder - sort by distance
+            if (!a.ammoEnabled) return;
+            if (part.children.Count > 0 && a.part == part.children[0]) return;
+            if (a.IsMissile && a.Missile.name != MissileName) return;
+            for (int i = 0; i < ammo.Count; i++)
+            {
+                float indexDist = (ammo[i].transform.position - transform.position).sqrMagnitude;
+                float aDist = (a.transform.position - transform.position).sqrMagnitude;
+                if (aDist < indexDist) 
+                {
+                    ammo.Insert(i, a);
+                    return;
+                }
+            }
             ammo.Add(a);
         }
 
@@ -200,7 +226,9 @@ namespace BDArmory.Modules
             }
         }
 
-        [KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = false)]//Resupply
+		#region Part Creation
+
+		[KSPEvent(name = "Resupply", guiName = "#LOC_BDArmory_Resupply", active = true, guiActive = false)]//Resupply
         public static AttachNode GetAttachNodeById(Part p, string id)
         {
             var node = id == "srfAttach" ? p.srfAttachNode : p.FindAttachNode(id);
@@ -654,4 +682,6 @@ namespace BDArmory.Modules
             }
         }
     }
+
+	#endregion
 }

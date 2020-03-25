@@ -1922,7 +1922,7 @@ namespace BDArmory.Modules
             if (missile is MissileBase)
             {
                 MissileBase ml = missile;
-                if (checkClearance && (!CheckBombClearance(ml) || (ml is MissileLauncher && ((MissileLauncher)ml).rotaryRail && !((MissileLauncher)ml).rotaryRail.readyMissile == ml)))
+                if (checkClearance && (!CheckBombClearance(ml) || ModuleRearmAmmo.IsAmmo(ml.part) || (ml is MissileLauncher && ((MissileLauncher)ml).rotaryRail && !((MissileLauncher)ml).rotaryRail.readyMissile == ml)))
                 {
                     List<MissileBase>.Enumerator otherMissile = vessel.FindPartModulesImplementing<MissileBase>().GetEnumerator();
                     while (otherMissile.MoveNext())
@@ -1930,6 +1930,7 @@ namespace BDArmory.Modules
                         if (otherMissile.Current == null) continue;
                         if (otherMissile.Current == ml || otherMissile.Current.GetShortName() != ml.GetShortName() ||
                             !CheckBombClearance(otherMissile.Current)) continue;
+                        if (ModuleRearmAmmo.IsAmmo(otherMissile.Current.part)) continue;
                         CurrentMissile = otherMissile.Current;
                         selectedWeapon = otherMissile.Current;
                         FireCurrentMissile(false);
@@ -2083,7 +2084,7 @@ namespace BDArmory.Modules
 
                 //dont add reloads
                 if ((weapon.Current.GetWeaponClass() == WeaponClasses.Bomb || weapon.Current.GetWeaponClass() == WeaponClasses.Missile || weapon.Current.GetWeaponClass() == WeaponClasses.SLW) &&
-                    weapon.Current.GetPart().FindModuleImplementing<ModuleRearmAmmo>().ammoEnabled)
+                    ModuleRearmAmmo.IsAmmo(weapon.Current.GetPart()))
                     continue;
 
                 if (!alreadyAdded)
